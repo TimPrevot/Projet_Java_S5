@@ -9,8 +9,7 @@ public class Joueur {
     private ArrayList<String> listeTerritoires;
 
     // Constructeur
-    public Joueur() {
-    }
+    public Joueur() {}
 
     // Getters et setters
     public void setID() {
