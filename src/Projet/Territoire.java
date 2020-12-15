@@ -11,7 +11,8 @@ public class Territoire {
 
     // Constructeur
     public Territoire() {
-        
+        IDJoueur = 4;
+        force = 2;
     }
 
     public void setID() {
@@ -44,5 +45,15 @@ public class Territoire {
 
     public void setTerritoiresVoisins(ArrayList<Integer> territoiresVoisins) {
         this.territoiresVoisins = territoiresVoisins;
+    }
+
+    @Override
+    public String toString() {
+        return "Territoire{" +
+                "ID=" + ID +
+                ", IDJoueur=" + IDJoueur +
+                ", force=" + force +
+                ", territoiresVoisins=" + territoiresVoisins +
+                '}';
     }
 }
