@@ -5,20 +5,20 @@ import java.util.Random;
 
 
 public class Partie {
-    public static int NB_TERRITOIRES = 12;
     public static int MAX_FORCE = 8;
     public static int MAX_X = 4;
-    public static int MAX_Y = 3;
-    public static int MAX_TERRITOIRES = 4;
-    private int nbJoueurs;
+    public static int MAX_Y = 4;
+    private static int MAX_TERRITOIRES = 4;
+    public static int nbJoueurs;
+    private static int NB_TERRITOIRES;
 
     // Constructeur
     public Partie(int nbJoueurs) {
-        this.nbJoueurs = nbJoueurs;
+        Partie.nbJoueurs = nbJoueurs;
     }
 
-    public int getNbJoueurs() {
-        return nbJoueurs;
+    public void setNbTerritoires() {
+        NB_TERRITOIRES = nbJoueurs * MAX_TERRITOIRES;
     }
 
     // Initialisation des variables
@@ -29,6 +29,14 @@ public class Partie {
 
     public ArrayList<Joueur> getJoueurs() {
         return joueurs;
+    }
+
+    public Joueur getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public TwoDimensionalArrayList<String> getMap() {
+        return map;
     }
 
     // Création de la carte
@@ -60,6 +68,11 @@ public class Partie {
                 } while (this.joueurs.get(ID).getListeTerritoires().size() > 5);
             }
         }
+    }
+
+    // Afficher la map
+    public void displayMap() {
+        /*TODO*/
     }
 
     // Changer joueur en cours

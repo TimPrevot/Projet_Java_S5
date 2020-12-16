@@ -34,7 +34,7 @@ public class Joueur {
         Scanner scanner = new Scanner(System.in);
         int territoireAttaquant = scanner.nextInt();
         int territoireAttaque = scanner.nextInt();
-
+        scanner.close();
     }
 
     public void terminerTour() {
