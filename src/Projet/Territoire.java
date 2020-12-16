@@ -11,8 +11,7 @@ public class Territoire {
 
     // Constructeur
     public Territoire() {
-        IDJoueur = 4;
-        force = 2;
+        this.setID();
     }
 
     public void setID() {

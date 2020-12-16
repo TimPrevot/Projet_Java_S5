@@ -26,8 +26,9 @@ public class Joueur {
 
     public void attaquerTerritoire() {
         Scanner scanner = new Scanner(System.in);
-        String territoireAttaquant = scanner.next();
-        String territoireAttaque = scanner.next();
+        int territoireAttaquant = scanner.nextInt();
+        int territoireAttaque = scanner.nextInt();
+
     }
 
     public void terminerTour() {
