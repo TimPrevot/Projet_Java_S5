@@ -3,6 +3,9 @@ package Projet;
 import java.util.ArrayList;
 
 public class TwoDimensionalArrayList<T> extends ArrayList<ArrayList<T>> {
+    private int size1;
+    private int size2;
+
     public void addToInnerArray(int index, T element) {
         while (index >= this.size()) {
             this.add(new ArrayList<T>());
