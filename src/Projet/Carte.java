@@ -3,6 +3,7 @@ package Projet;
 import java.util.ArrayList;
 
 public class Carte {
+    public static int NB_TERRITOIRES = 12;
     private TwoDimensionalArrayList<Territoire> territoires = new TwoDimensionalArrayList<>();
 
     public Carte() {
@@ -13,7 +14,7 @@ public class Carte {
     }
 
     public void setTerritoires(TwoDimensionalArrayList<Territoire> territoires) {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < NB_TERRITOIRES; i++) {
             territoires.add(new ArrayList<Territoire>());
         }
     }

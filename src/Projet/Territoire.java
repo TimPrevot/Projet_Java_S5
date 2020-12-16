@@ -3,6 +3,7 @@ package Projet;
 import java.util.ArrayList;
 
 public class Territoire {
+    public static int NB_TERRITOIRES = 12;
     private static int count = 0;
     private int ID = 0;
     private int IDJoueur;
