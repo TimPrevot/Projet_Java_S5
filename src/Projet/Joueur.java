@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Joueur {
     private static int count = 0;
     private int ID = 0;
-    private ArrayList<String> listeTerritoires;
+    private ArrayList<Territoire> listeTerritoires;
 
     // Constructeur
     public Joueur() {
@@ -26,17 +26,31 @@ public class Joueur {
         return count;
     }
 
-    public ArrayList<String> getListeTerritoires() {
+    public ArrayList<Territoire> getListeTerritoires() {
         return listeTerritoires;
     }
 
-    public ArrayList<Integer> attaquerTerritoire() {
+    public ArrayList<Integer> attaquerTerritoire() throws TerritoryNotOwnedException {
         Scanner scanner = new Scanner(System.in);
-        int territoireAttaquant;
+        int territoireAttaquant = 0;
         int territoireAttaque;
         do {
             System.out.println("Choisissez le territoire avec lequel vous attaquez :");
-            territoireAttaquant = scanner.nextInt();
+            try {
+                territoireAttaquant = scanner.nextInt();
+                boolean isOwned = false;
+                for (int i = 0; i < this.listeTerritoires.size(); i++) {
+                    if (territoireAttaquant == this.listeTerritoires.get(i).getID()){
+                        isOwned = true;
+                    }
+                }
+                if (!isOwned){
+                    throw new TerritoryNotOwnedException("Veuillez choisir un territoire qui vous appartient !");
+                }
+            } catch (TerritoryNotOwnedException e) {
+                System.out.println(e);
+            }
+
             System.out.println("Choisissez le territoire que vous attaquez :");
             territoireAttaque = scanner.nextInt();
         } while (territoireAttaquant == territoireAttaque);

@@ -115,7 +115,7 @@ public class Partie {
     }
 
     // Gère les attaques
-    public void combat() {
+    public void combat() throws TerritoryNotOwnedException {
         Territoire attaquant = new Territoire();
         Territoire defenseur = new Territoire();
         ArrayList<Integer> combat = this.currentPlayer.attaquerTerritoire();
