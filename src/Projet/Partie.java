@@ -72,7 +72,23 @@ public class Partie {
 
     // Afficher la map
     public void displayMap() {
-        /*TODO*/
+        int maxLength = 3;
+
+        System.out.println(' ' * (maxLength + 1) + '|');
+        for (int i = 0; i < MAX_X; i++) {
+            System.out.println('-' * ((maxLength + 1) * (MAX_X + 1) + 1));
+        }
+        System.out.println('\n');
+        System.out.println('-' * ((maxLength + 1) * (MAX_X + 1) + 1));
+
+        for (int i = 0; i < MAX_X; i++) {
+            for (int j = 0; j < MAX_Y; j++) {
+                if (j == 0) {
+                    System.out.println(' ' * (maxLength + 1) + '|');
+                }
+                System.out.println(' ' * (maxLength + 1) + '|');
+            }
+        }
     }
 
     // Changer joueur en cours
