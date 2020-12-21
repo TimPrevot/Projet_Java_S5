@@ -30,11 +30,21 @@ public class Joueur {
         return listeTerritoires;
     }
 
-    public void attaquerTerritoire() {
+    public ArrayList<Integer> attaquerTerritoire() {
         Scanner scanner = new Scanner(System.in);
-        int territoireAttaquant = scanner.nextInt();
-        int territoireAttaque = scanner.nextInt();
+        int territoireAttaquant;
+        int territoireAttaque;
+        do {
+            System.out.println("Choisissez le territoire avec lequel vous attaquez :");
+            territoireAttaquant = scanner.nextInt();
+            System.out.println("Choisissez le territoire que vous attaquez :");
+            territoireAttaque = scanner.nextInt();
+        } while (territoireAttaquant == territoireAttaque);
+        ArrayList<Integer> combat = null;
+        combat.add(territoireAttaquant);
+        combat.add(territoireAttaque);
         scanner.close();
+        return combat;
     }
 
     public void terminerTour() {

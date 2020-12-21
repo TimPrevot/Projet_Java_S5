@@ -35,6 +35,18 @@ public class Partie {
         return currentPlayer;
     }
 
+    public void setCurrentPlayer(Joueur nextPlayer) {
+        this.currentPlayer = nextPlayer;
+    }
+
+    public Carte getCarte() {
+        return carte;
+    }
+
+    public void setCarte(Carte carte) {
+        this.carte = carte;
+    }
+
     public TwoDimensionalArrayList<String> getMap() {
         return map;
     }
@@ -48,7 +60,7 @@ public class Partie {
     public void initJoueurs() {
         for (int i = 0; i < nbJoueurs; i++) {
             Joueur nouveauJoueur = new Joueur();
-            joueurs.add(nouveauJoueur);
+            this.getJoueurs().add(nouveauJoueur);
         }
     }
 
@@ -57,15 +69,16 @@ public class Partie {
         Random random = new Random();
         int ID;
         int force;
+        ArrayList<Integer> forceJoueurs;
         for (int i = 0; i < MAX_X; i++) {
             for (int j = 0; j < MAX_Y; j++) {
                 do {
                     ID = random.nextInt(nbJoueurs);
                     force = random.nextInt(9 - 1) + 1;
-                    if (this.joueurs.get(ID).getListeTerritoires().size() <= 5) {
-                        this.map.addToInnerArray(i, j, ID + " " + force);
+                    if (this.getJoueurs().get(ID).getListeTerritoires().size() <= 5) {
+                        this.getMap().addToInnerArray(i, j, ID + " " + force);
                     }
-                } while (this.joueurs.get(ID).getListeTerritoires().size() > 5);
+                } while (this.getJoueurs().get(ID).getListeTerritoires().size() > 5);
             }
         }
     }
@@ -94,24 +107,29 @@ public class Partie {
     // Changer joueur en cours
     public void changeCurrentPlayer() {
         Random random = new Random();
-        int nextPlayerID = random.nextInt(nbJoueurs);
-        this.currentPlayer = this.joueurs.get(nextPlayerID);
+        int nextPlayerID;
+        do {
+            nextPlayerID = random.nextInt(nbJoueurs);
+        } while (nextPlayerID == this.getCurrentPlayer().getID());
+        this.setCurrentPlayer(this.joueurs.get(nextPlayerID));
     }
 
-    public void combat(int territoireAttaquant, int territoireAttaque) {
+    // Gère les attaques
+    public void combat() {
         Territoire attaquant = new Territoire();
         Territoire defenseur = new Territoire();
+        ArrayList<Integer> combat = this.currentPlayer.attaquerTerritoire();
         for (int i = 0; i < NB_TERRITOIRES; i++) {
             for (int j = 0; j < NB_TERRITOIRES; j++) {
-                if (this.carte.getTerritoires().get(i).get(j).getID() == territoireAttaquant) {
+                if (this.carte.getTerritoires().get(i).get(j).getID() == combat.get(0)) {
                     attaquant = this.carte.getTerritoires().get(i).get(j);
                 }
             }
         }
         for (int i = 0; i < NB_TERRITOIRES; i++) {
             for (int j = 0; j < NB_TERRITOIRES; j++) {
-                if (this.carte.getTerritoires().get(i).get(j).getID() == territoireAttaque) {
-                    defenseur = this.carte.getTerritoires().get(i).get(j);
+                if (this.getCarte().getTerritoires().get(i).get(j).getID() == combat.get(1)) {
+                    defenseur = this.getCarte().getTerritoires().get(i).get(j);
                 }
             }
         }
@@ -119,6 +137,7 @@ public class Partie {
         int totalDefenseur = 0;
         int coup;
         Random random = new Random();
+
         // Calcul des jets de l'attaquant
         for (int i = 0; i < attaquant.getForce() - 1; i++) {
             coup = random.nextInt(7 - 1) + 1;
@@ -139,8 +158,5 @@ public class Partie {
         } else if (totalAttaquant < totalDefenseur) {
             attaquant.setForce(1);
         }
-
-
     }
-
 }
