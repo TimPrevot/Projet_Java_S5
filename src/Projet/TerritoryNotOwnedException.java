@@ -1,4 +1,4 @@
-package Projet;
+package projet;
 
 public class TerritoryNotOwnedException extends Exception {
     public TerritoryNotOwnedException(final String message){

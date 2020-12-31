@@ -1,5 +1,5 @@
 // TODO renommer le package en minuscules: package projet;
-package Projet;
+package projet;
 
 import java.util.Vector;
 
