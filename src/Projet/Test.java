@@ -8,17 +8,19 @@ public class Test {
         Scanner scanner = new Scanner(System.in);
         int nbJoueurs = scanner.nextInt();
         scanner.close();
+/*
         Partie game = new Partie(nbJoueurs);
         game.setNbTerritoires();
         game.initCarte();
         game.initJoueurs();
         game.initMap();
+
         boolean tourFini = false;
         while (game.getJoueurs().size() > 1){
             do {
                 tourFini = false;
 
             } while (tourFini != true);
-        }
+        }*/
     }
 }
