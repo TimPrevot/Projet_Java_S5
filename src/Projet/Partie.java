@@ -30,13 +30,28 @@ public class Partie {
      * @return nombre de Territoires éligibles à la Partie
      * @see Partie#init()
      */
-    private static int nbEquitable(int iNbTerritoires, int iNbJoueurs) {
+    private static int nbTerrEquitable(int iNbTerritoires, int iNbJoueurs) {
         int iTemp = iNbTerritoires % iNbJoueurs;
         while ((iNbTerritoires > 0) && (iTemp > 0)) {
             iNbTerritoires--;
             iTemp = iNbTerritoires % iNbJoueurs;
         }
         return iNbTerritoires;
+    }
+
+    /**
+     * Réduit le nombre de dés par joueur pour que les dés puissent être répartis dans leur totalité sur l'ensemble des
+     * Territoires de chaque joueur
+     *
+     * @param iNbDice          nombre de dés par joueur
+     * @param iNbJoueurs       nombre de Joueurs
+     * @param iNbTerrEquitable nombre de Territoires total
+     * @return longueur du côté de la matrice carrée pouvant contenir les Territoires
+     * @see Partie#init()
+     */
+    private static int nbDiceEquitable(int iNbDice, int iNbJoueurs, int iNbTerrEquitable) {
+        int iQuota = Territoire.getMAX_FORCE() * iNbTerrEquitable / iNbJoueurs;
+        return (Math.min(iNbDice, iQuota));
     }
 
     /**
@@ -81,7 +96,7 @@ public class Partie {
     /**
      * Initialisation de la Partie
      */
-    private void init() {
+    private void init() throws BadInitException {
         FileInputStream appStream = null;
         try {
             Properties prop = new Properties();
@@ -100,28 +115,35 @@ public class Partie {
             System.out.println("iNbPlayers = " + iNbPlayers);
             System.out.println("iNbDicePerPlayer = " + iNbDicePerPlayer);
 
+            int iNbTerrEquitable;
+
             if (sGeneralPath != null && !sGeneralPath.isEmpty() && sCSVFileName != null && !sCSVFileName.isEmpty()) {
 
                 /* instanciation de la Carte à partir du fichier CSV */
                 this.carte = new Carte(sGeneralPath + sCSVFileName);
 
+                iNbTerrEquitable = nbTerrEquitable(this.carte.getvTerritoires().size(), iNbPlayers);
+                if (this.carte.getvTerritoires().size() != iNbTerrEquitable) {
+                    throw new BadInitException("Le nombre de Territoires doit être un multiple du nombre de Joueurs !");
+                }
+
             } else {
-                int iNbEquitable = nbEquitable(iNbTerritories, iNbPlayers);
-                int iAbscissesMaxSqrt = coteSqrt(iNbEquitable);
-                System.out.println("iNbEquitable = " + iNbEquitable);
+                iNbTerrEquitable = nbTerrEquitable(iNbTerritories, iNbPlayers);
+                int iAbscissesMaxSqrt = coteSqrt(iNbTerrEquitable);
+                System.out.println("iNbEquitable = " + iNbTerrEquitable);
                 System.out.println("iAbscissesMaxSqrt = " + iAbscissesMaxSqrt);
 
                 /* on ne veut pas de matrice carrée contenant une ligne vide ou une ligne avec 1 seul Territoire */
-                if (iNbEquitable - (iAbscissesMaxSqrt * (iAbscissesMaxSqrt - 1)) < 2) {
-                    int iAbscissesMax = cote(iNbEquitable);
+                if (iNbTerrEquitable - (iAbscissesMaxSqrt * (iAbscissesMaxSqrt - 1)) < 2) {
+                    int iAbscissesMax = cote(iNbTerrEquitable);
                     System.out.println("iAbscissesMax = " + iAbscissesMax);
 
                     /* instanciation aléatoire de la Carte (matrice rectangulaire) */
-                    this.carte = new Carte(iAbscissesMax, iNbEquitable / iAbscissesMax, iNbEquitable);
+                    this.carte = new Carte(iAbscissesMax, iNbTerrEquitable / iAbscissesMax, iNbTerrEquitable);
                 } else {
 
                     /* instanciation aléatoire de la Carte (matrice carrée) */
-                    this.carte = new Carte(iAbscissesMaxSqrt, iAbscissesMaxSqrt, iNbEquitable);
+                    this.carte = new Carte(iAbscissesMaxSqrt, iAbscissesMaxSqrt, iNbTerrEquitable);
                 }
             }
 
@@ -129,8 +151,11 @@ public class Partie {
             //nbDice doit être suffisant pour avoir au moins 1 dé par Territoire par Player
             //nb de Territoires > nb Joueurs
             //nb Joueurs > 1
-            //nb de Dés par Joueur <= MAX_FORCE * iNbEquitable / iNbPlayers (sinon il restera des dés qu'on ne pourra...
-            //... pas placer sur les Territoires du Joueur (saturés))
+
+
+            // Vérification et réduction du nombre de dés si nécessaire
+            int iNbDiceEquitable = nbDiceEquitable(iNbDicePerPlayer, iNbPlayers, iNbTerrEquitable);
+            System.out.println("iNbDiceEquitable = " + iNbDiceEquitable);
 
             /* instanciation des Joueurs */
             vJoueurs = new Vector<>(iNbPlayers);
@@ -172,7 +197,7 @@ public class Partie {
                     terr.setiForce(1);
                 }
 
-                int iForceRestante = iNbDicePerPlayer - joueur.getvListeTerritoires().size();
+                int iForceRestante = iNbDiceEquitable - joueur.getvListeTerritoires().size();
                 while (iForceRestante > 0) {
                     for (Territoire terr : joueur.getvListeTerritoires()) {
                         int iBorne = Integer.min(Territoire.getMAX_FORCE() - terr.getiForce(), iForceRestante);
@@ -268,7 +293,7 @@ public class Partie {
 
         joueurActif.setbAMonTour(true);
 
-        while (joueurActif.isAMonTour() && joueurActif.isActive() && bPartieEnCours) {
+        while (joueurActif.isAMonTour() && bPartieEnCours) {
             try {
 
                 joueurActif.attaquerTerritoire();
@@ -307,7 +332,7 @@ public class Partie {
      *
      * @see Partie#tourDeJeu()
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws BadInitException {
         Partie partie = new Partie();
         partie.init();
         //partie.begin(); // Utilisation des Threads
@@ -325,10 +350,18 @@ public class Partie {
             //TODO Persister la Partie ici!
 
         }
+
         System.out.println("   F I N   D E   P A R T I E");
         System.out.println();
         System.out.println("Le Joueur " + partie.vJoueursActifs.firstElement().getiID() + " a gagné !");
 
+        partie.terminate();
+    }
+
+    public void terminate() {
+        try {
+            clavier.close();
+        } catch (Exception ignored) {}
     }
 
     /**
@@ -339,141 +372,4 @@ public class Partie {
         random = new Random();
     }
 
-
-/*
-
-    // Initialisation des variables
-    private Joueur currentPlayer;
-    private ArrayList<Joueur> joueursT;
-    private TwoDimensionalArrayList<String> map;
-
-    public ArrayList<Joueur> getJoueurs() {
-        return joueursT;
-    }
-
-    public Joueur getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    public void setCurrentPlayer(Joueur nextPlayer) {
-        this.currentPlayer = nextPlayer;
-    }
-
-    public Carte getCarte() {
-        return carte;
-    }
-
-    public void setCarte(Carte carte) {
-        this.carte = carte;
-    }
-
-    public TwoDimensionalArrayList<String> getMap() {
-        return map;
-    }
-
-
-    // Création des joueurs
-    public void initJoueurs() {
-        for (int i = 0; i < nbJoueurs; i++) {
-            Joueur nouveauJoueur = new Joueur();
-            this.getJoueurs().add(nouveauJoueur);
-        }
-    }
-
-    // Initialisation de la map
-    public void initMap() {
-        Random random = new Random();
-        int ID;
-        int force;
-        ArrayList<Integer> forceJoueurs;
-        for (int i = 0; i < MAX_X; i++) {
-            for (int j = 0; j < MAX_Y; j++) {
-                do {
-                    ID = random.nextInt(nbJoueurs);
-                    force = random.nextInt(9 - 1) + 1;
-                    if (this.getJoueurs().get(ID).getListeTerritoires().size() <= 5) {
-                        this.getMap().addToInnerArray(i, j, ID + " " + force);
-                    }
-                } while (this.getJoueurs().get(ID).getListeTerritoires().size() > 5);
-            }
-        }
-    }
-
-    // Afficher la map
-    public void displayMap() {
-        int maxLength = 3;
-
-        System.out.println(' ' * (maxLength + 1) + '|');
-        for (int i = 0; i < MAX_X; i++) {
-            System.out.println('-' * ((maxLength + 1) * (MAX_X + 1) + 1));
-        }
-        System.out.println('\n');
-        System.out.println('-' * ((maxLength + 1) * (MAX_X + 1) + 1));
-
-        for (int i = 0; i < MAX_X; i++) {
-            for (int j = 0; j < MAX_Y; j++) {
-                if (j == 0) {
-                    System.out.println(' ' * (maxLength + 1) + '|');
-                }
-                System.out.println(' ' * (maxLength + 1) + '|');
-            }
-        }
-    }
-
-    // Changer joueur en cours
-    public void changeCurrentPlayer() {
-        Random random = new Random();
-        int nextPlayerID;
-        do {
-            nextPlayerID = random.nextInt(nbJoueurs);
-        } while (nextPlayerID == this.getCurrentPlayer().getID());
-        this.setCurrentPlayer(this.joueurs.get(nextPlayerID));
-    }
-*/
-
-    // Gère les attaques
-    /*public void combat() throws TerritoryNotOwnedException {
-        Territoire attaquant = new Territoire();
-        Territoire defenseur = new Territoire();
-        ArrayList<Integer> combat = this.currentPlayer.attaquerTerritoire();
-        for (int i = 0; i < NB_TERRITOIRES; i++) {
-            for (int j = 0; j < NB_TERRITOIRES; j++) {
-                if (this.carte.getTerritoires().get(i).get(j).getID() == combat.get(0)) {
-                    attaquant = this.carte.getTerritoires().get(i).get(j);
-                }
-            }
-        }
-        for (int i = 0; i < NB_TERRITOIRES; i++) {
-            for (int j = 0; j < NB_TERRITOIRES; j++) {
-                if (this.getCarte().getTerritoires().get(i).get(j).getID() == combat.get(1)) {
-                    defenseur = this.getCarte().getTerritoires().get(i).get(j);
-                }
-            }
-        }
-        int totalAttaquant = 0;
-        int totalDefenseur = 0;
-        int coup;
-        Random random = new Random();
-
-        // Calcul des jets de l'attaquant
-        for (int i = 0; i < attaquant.getForce() - 1; i++) {
-            coup = random.nextInt(7 - 1) + 1;
-            totalAttaquant += coup;
-        }
-
-        // Calcul des jets du défenseur
-        for (int i = 0; i < defenseur.getForce() - 1; i++) {
-            coup = random.nextInt(7 - 1) + 1;
-            totalDefenseur += coup;
-        }
-
-        // Calcul des résultats
-        if (totalAttaquant > totalDefenseur) {
-            defenseur.setIDJoueur(attaquant.getIDJoueur());
-            defenseur.setForce(attaquant.getForce() - 1);
-            attaquant.setForce(1);
-        } else if (totalAttaquant < totalDefenseur) {
-            attaquant.setForce(1);
-        }
-    }*/
 }

@@ -210,9 +210,7 @@ public class Joueur {
             System.out.println("Total Attaqué = " + iTotalAttaque);
 
             if (iTotalAttaquant > iTotalAttaque) {
-                //territoireAttaque.getOwner().getvListeTerritoires().removeElement(territoireAttaque);
                 territoireAttaque.getOwner().removeTerritoire(territoireAttaque);
-                //vListeTerritoires.addElement(territoireAttaque);
                 addTerritoire(territoireAttaque);
 
                 territoireAttaque.setOwner(this);
