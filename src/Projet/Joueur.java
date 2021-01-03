@@ -1,43 +1,305 @@
-package Projet;
+package projet;
 
-import java.util.ArrayList;
+import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
+/**
+ * Joueur défini par un ID unique
+ *
+ * @see Partie
+ * @see Territoire
+ */
+//public class Joueur extends Thread {
 public class Joueur {
-    private static int count = 0;
-    private int ID = 0;
-    private ArrayList<String> listeTerritoires;
 
-    // Constructeur
+    private static int count = 0;                       // pour la génération automatique d'ID
+
+    private int iID = 0;                                // ID du Joueur
+    //private ArrayList<Territoire> listeTerritoires;
+    private Vector<Territoire> vListeTerritoires;       // liste des Territoires appartenant au Joueur
+    private Scanner clavier;
+    private boolean bAMonTour = false;                  // permet au Joueur d'attaquer autant de fois qu'il le souhaite
+    //    private boolean bPartieEnCours = false; // Threads....
+
+    public int getiID() {
+        return iID;
+    }
+    public Vector<Territoire> getvListeTerritoires() {
+        return vListeTerritoires;
+    }
+    public boolean isAMonTour() { return bAMonTour; }
+
+    public void setiID() {
+        this.iID = count++;
+    }
+    public void setbAMonTour(boolean bAMonTour) { this.bAMonTour = bAMonTour; }
+
+    /**
+     * Constructeur par défaut: génération automatique de l'ID
+     *
+     * @see Partie
+     */
     public Joueur() {
-        this.setID();
+        this.setiID();
+        this.vListeTerritoires = new Vector();
+        clavier = new Scanner(System.in);
     }
 
-    // Getters et setters
-    public void setID() {
-        this.ID = count++;
+    /**
+     * Ajoute un Territoire à la liste des Territoires appartenant au Joueur
+     *
+     * @param       territoire Territoire à ajouter
+     *
+     * @see Partie
+     * @see Joueur#attaquerTerritoire()
+     */
+    public void addTerritoire(Territoire territoire) {
+        this.vListeTerritoires.add(territoire);
     }
 
-    public int getID() {
-        return ID;
+    /**
+     * Enlève un Territoire de la liste des Territoires appartenant au Joueur
+     *
+     * @param       territoire Territoire à enlever
+     *
+     * @see Joueur#attaquerTerritoire()
+     */
+    public void removeTerritoire(Territoire territoire) {
+        this.vListeTerritoires.removeElement(territoire);
     }
 
-    public static int getCount() {
-        return count;
+//    @Override
+//    public void start() {
+//        super.start();
+//        bPartieEnCours = true;
+//    }
+
+    /**
+     * Retourne true si la liste des Territoires appartenant au Joueur est vide; false sinon
+     *
+     * @return      true si la liste des Territoires appartenant au Joueur est vide; false sinon
+     *
+     * @see Partie
+     */
+    public boolean isActive() {
+        return ! vListeTerritoires.isEmpty();
     }
 
-    public ArrayList<String> getListeTerritoires() {
-        return listeTerritoires;
+//    @Override
+//    public void run() {
+//        System.out.println("Joueur numéro " + ID);
+//        while (bPartieEnCours) {
+//            jouerUntour();
+//        }
+//
+//    }
+//    private synchronized void jouerUntour() {
+//        try {
+//            DateFormat df = new SimpleDateFormat("HH:mm:ss");
+//            //System.out.println(df.format(new Date()) + " " + getName() + " " + getState() + " Joueur " + ID);
+//            while (!bAMonTour){
+//                wait();
+//            }
+//
+//            iCount++;
+//            System.out.println(df.format(new Date()) + " " + getName() + " " + getState() + " Joueur " + ID + " compteur: " + iCount);
+//            if (!isInterrupted()){
+//                Thread.sleep(1000);
+//
+//            }
+//            notifyAll();
+//            if (iCount > 4){
+//                othersToGo();
+//                System.out.println("fin");
+//            }
+//        } catch (InterruptedException  ie){
+//            Thread.currentThread().interrupt();
+//            ie.printStackTrace();
+//        }
+//    }
+//    private void othersToGo(){
+//            System.out.println("Others to go");
+//        bPartieEnCours = false;
+//    }
+
+    /**
+     * Choix du Territoire à étendre et du Territoire à attaquer;
+     * lancement des dés de chaque Joueur (l'autre Joueur étant le propriétaire du Territoire attaqué);
+     * comparaison des résultats et modification des listes de Territoires de chacun des 2 Joueurs
+     *
+     * @throws       TerritoryNotOwnedException si le Territoire à étendre n'appartient pas au Joueur
+     *
+     * @see Partie
+     */
+    public void attaquerTerritoire() throws TerritoryNotOwnedException {
+        //Scanner clavier = new Scanner(System.in);
+        Territoire territoireAttaquant = null;
+        Territoire territoireAttaque = null;
+        try {
+            System.out.print("Territoire à étendre : ");
+            int iIDAttaquant = clavier.nextInt();
+
+            /* contrôler que le Territoire attaqué appartient au Joueur */
+            boolean isOwned = false;
+            for (Territoire terr : vListeTerritoires) {
+                if (iIDAttaquant == terr.getiId()) {
+                    isOwned = true;
+                    territoireAttaquant = terr;
+                    break;
+                }
+            }
+            if (!isOwned) {
+                throw new TerritoryNotOwnedException("Veuillez choisir un territoire qui vous appartient !");
+            }
+            if (territoireAttaquant.getiForce() < 2) {
+                //TODO throw new TerritoryTooWeakException("Le Territoire que vous souhaitez étendre est trop faible");
+                System.out.println("Le Territoire que vous souhaitez étendre est trop faible");
+            }
+
+            System.out.print("Territoire attaqué : ");
+            int iIDAttaque = clavier.nextInt();
+
+            /* contrôler que le Territoire attaqué n'appartient PAS au Joueur */
+            isOwned = false;
+            for (Territoire terr : vListeTerritoires) {
+                if (iIDAttaque == terr.getiId()) {
+                    isOwned = true;
+                    break;
+                }
+            }
+            if (isOwned) {
+                //TODO throw new TerritoryAlreadyOwnedException("Veuillez attaquer un territoire qui NE vous appartient PAS !");
+                System.out.println("Veuillez attaquer un territoire qui NE vous appartient PAS !");
+            }
+
+            /* contrôler que le Territoire attaqué est un Territoire voisin du Territoire à étendre */
+            boolean isVoisin = false;
+            for (Territoire terrVoisin : territoireAttaquant.getvTerritoireVoisin()) {
+                if (iIDAttaque == terrVoisin.getiId()) {
+                    isVoisin = true;
+                    territoireAttaque = terrVoisin;
+                    break;
+                }
+            }
+            if (!isVoisin) {
+                //TODO throw new TerritoryDistantException("Le Territoire attaqué n'est pas voisin du Territoire que vous souhaitez étendre");
+                System.out.println("Le Territoire attaqué n'est pas voisin du Territoire que vous souhaitez étendre");
+            }
+
+            System.out.println("Attaquant: " + territoireAttaquant.getiId() + " Attaqué: " + territoireAttaque.getiId());
+
+            Vector<Integer> vDiceAttaquant = runDice(territoireAttaquant.getiForce());
+            Vector<Integer> vDiceAttaque = runDice(territoireAttaque.getiForce());
+
+            System.out.println("Dés Attaquant: " + vDiceAttaquant.toString());
+            System.out.println("Dés Attaqué: " + vDiceAttaque.toString());
+
+            int iTotalAttaquant = 0;
+            for (int i = 0; i < vDiceAttaquant.size(); i++) {
+                iTotalAttaquant = iTotalAttaquant + vDiceAttaquant.elementAt(i);
+            }
+
+            int iTotalAttaque = 0;
+            for (int i = 0; i < vDiceAttaque.size(); i++) {
+                iTotalAttaque = iTotalAttaque + vDiceAttaque.elementAt(i);
+            }
+
+            System.out.println("Total Attaquant = " + iTotalAttaquant);
+            System.out.println("Total Attaqué = " + iTotalAttaque);
+
+            if (iTotalAttaquant > iTotalAttaque) {
+                //territoireAttaque.getOwner().getvListeTerritoires().removeElement(territoireAttaque);
+                territoireAttaque.getOwner().removeTerritoire(territoireAttaque);
+                //vListeTerritoires.addElement(territoireAttaque);
+                addTerritoire(territoireAttaque);
+
+                territoireAttaque.setOwner(this);
+
+                territoireAttaque.setiForce(territoireAttaquant.getiForce() - 1);
+                territoireAttaquant.setiForce(1);
+
+            } else if (iTotalAttaque > iTotalAttaquant) {
+                territoireAttaquant.setiForce(1);
+            } else {
+                //TODO Que fait-on en cas d'égalité???
+            }
+
+        } catch (InputMismatchException ime) {
+            System.out.println("Entrée invalide; saisir un int SVP");
+            //ime.printStackTrace();
+        } finally {
+            //            try {
+            //                if (clavier != null){clavier.close();}
+            //            } catch (Exception ignored) {}
+        }
     }
 
-    public void attaquerTerritoire() {
+    /**
+     * Retourne une liste de valeurs de dés (points des faces)
+     *
+     * @return      liste de valeurs de dés
+     * @param       iForce nombre de dés
+     *
+     * @see Joueur#attaquerTerritoire()
+     */
+    private Vector<Integer> runDice(int iForce) {
+        Vector<Integer> vRetour = new Vector<>(iForce);
+        Random random = new Random();
+
+        for (int i = 0; i < iForce; i++) {
+            vRetour.addElement(random.nextInt(6) + 1);
+        }
+
+        return vRetour;
+    }
+/*
+    public ArrayList<Integer> attaquerTerritoire() throws TerritoryNotOwnedException {
         Scanner scanner = new Scanner(System.in);
-        int territoireAttaquant = scanner.nextInt();
-        int territoireAttaque = scanner.nextInt();
-        scanner.close();
-    }
+        int territoireAttaquant = 0;
+        int territoireAttaque;
+        do {
+            System.out.println("Choisissez le territoire avec lequel vous attaquez :");
+            try {
+                territoireAttaquant = scanner.nextInt();
+                boolean isOwned = false;
+                for (int i = 0; i < this.listeTerritoires.size(); i++) {
+//                    if (territoireAttaquant == this.listeTerritoires.get(i).getID()){
+//                        isOwned = true;
+//                    }
+                }
+                if (!isOwned){
+                    throw new TerritoryNotOwnedException("Veuillez choisir un territoire qui vous appartient !");
+                }
+            } catch (TerritoryNotOwnedException tnoe) {
+                System.out.println(tnoe);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
 
+            System.out.println("Choisissez le territoire que vous attaquez :");
+            territoireAttaque = scanner.nextInt();
+        } while (territoireAttaquant == territoireAttaque);
+        ArrayList<Integer> combat = null;
+        combat.add(territoireAttaquant);
+        combat.add(territoireAttaque);
+        scanner.close();
+        return combat;
+    }
+*/
+
+    /**
+     * Attribution des dés de renfort au Joueur à la fin du tour
+     * Distribution aléatoire des dés de renfort sur les territoires du Joueur
+     *
+     *
+     * @see Partie
+     */
     public void terminerTour() {
         /* A implémenter */
+        //TODO
+
+        bAMonTour = false;
     }
 }
