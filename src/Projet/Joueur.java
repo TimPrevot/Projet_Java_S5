@@ -286,6 +286,16 @@ public class Joueur {
         return combat;
     }
 */
+    private int addContigu(int iNbCont, Territoire terr, Vector<Territoire> vTerrDone) {
+        for (Territoire terrJoueur : terr.getvTerritoireVoisin()) {
+            if ((! vTerrDone.contains(terrJoueur)) && (terrJoueur.getOwner().getiID() == iID)) {
+                iNbCont ++;
+                vTerrDone.addElement(terrJoueur);
+                iNbCont = addContigu(iNbCont, terrJoueur, vTerrDone);
+            }
+        }
+        return iNbCont;
+    }
 
     /**
      * Attribution des dés de renfort au Joueur à la fin du tour
@@ -296,7 +306,24 @@ public class Joueur {
      */
     public void terminerTour() {
         /* A implémenter */
-        //TODO
+        // TODO redistrib aléatoire
+
+        int iNbMaxContigus = 0;
+        Vector<Territoire> vTerrDone = new Vector<>();
+        for (Territoire terrJoueur : vListeTerritoires) {
+            if (! vTerrDone.contains(terrJoueur)) {
+                vTerrDone.addElement(terrJoueur);
+                int iNbContigus = addContigu(1, terrJoueur, vTerrDone);
+                if (iNbContigus > iNbMaxContigus) {
+                    iNbMaxContigus = iNbContigus;
+                }
+            }
+        }
+
+        System.out.println("Territoires contigus = " + iNbMaxContigus);
+        if (! vTerrDone.isEmpty()) {
+            System.out.println("Territoires examinés : " + vTerrDone.toString());
+        }
 
         bAMonTour = false;
     }
