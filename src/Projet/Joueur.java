@@ -1,4 +1,3 @@
-// TODO renommer le package en minuscules: package projet;
 package projet;
 
 import java.util.*;

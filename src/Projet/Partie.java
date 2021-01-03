@@ -1,4 +1,3 @@
-// TODO renommer le package en minuscules: package projet;
 package projet;
 
 import java.io.FileInputStream;
@@ -26,16 +25,15 @@ public class Partie {
     /**
      * Réduit le nombre de Territoires à un multiple du nombre de Joueurs
      *
-     * @return      nombre de Territoires éligibles à la Partie
-     * @param       iNbTerritoires nombre de Territoires
-     * @param       iNbJoueurs nombre de Joueurs
-     *
+     * @param iNbTerritoires nombre de Territoires
+     * @param iNbJoueurs     nombre de Joueurs
+     * @return nombre de Territoires éligibles à la Partie
      * @see Partie#init()
      */
     private static int nbEquitable(int iNbTerritoires, int iNbJoueurs) {
         int iTemp = iNbTerritoires % iNbJoueurs;
         while ((iNbTerritoires > 0) && (iTemp > 0)) {
-            iNbTerritoires --;
+            iNbTerritoires--;
             iTemp = iNbTerritoires % iNbJoueurs;
         }
         return iNbTerritoires;
@@ -44,9 +42,8 @@ public class Partie {
     /**
      * Retourne la longueur du côté d'une matrice CARREE pouvant contenir (au moins) tous les Territoires
      *
-     * @return      longueur du côté de la matrice carrée pouvant contenir les Territoires
-     * @param       iNbTerritoires nombre de Territoires
-     *
+     * @param iNbTerritoires nombre de Territoires
+     * @return longueur du côté de la matrice carrée pouvant contenir les Territoires
      * @see Partie#init()
      */
     private static int coteSqrt(int iNbTerritoires) {
@@ -60,9 +57,8 @@ public class Partie {
     /**
      * Retourne la longueur d'un côté d'une matrice RECTANGULAIRE pouvant contenir EXACTEMENT tous les Territoires
      *
-     * @return      longueur d'un côté de la matrice rectangulaire
-     * @param       iNbTerritoires nombre de Territoires
-     *
+     * @param iNbTerritoires nombre de Territoires
+     * @return longueur d'un côté de la matrice rectangulaire
      * @see Partie#init()
      */
     private static int cote(int iNbTerritoires) {
@@ -75,7 +71,7 @@ public class Partie {
         while (iDiv > iMax) {
             i++;
             iDiv = iNbTerritoires / i;
-            if(iNbTerritoires % i == 0) {
+            if (iNbTerritoires % i == 0) {
                 iCote = iDiv;
             }
         }
@@ -84,7 +80,6 @@ public class Partie {
 
     /**
      * Initialisation de la Partie
-     *
      */
     private void init() {
         FileInputStream appStream = null;
@@ -117,7 +112,7 @@ public class Partie {
                 System.out.println("iAbscissesMaxSqrt = " + iAbscissesMaxSqrt);
 
                 /* on ne veut pas de matrice carrée contenant une ligne vide ou une ligne avec 1 seul Territoire */
-                if (iNbEquitable - (iAbscissesMaxSqrt * (iAbscissesMaxSqrt - 1)) < 2){
+                if (iNbEquitable - (iAbscissesMaxSqrt * (iAbscissesMaxSqrt - 1)) < 2) {
                     int iAbscissesMax = cote(iNbEquitable);
                     System.out.println("iAbscissesMax = " + iAbscissesMax);
 
@@ -139,7 +134,7 @@ public class Partie {
 
             /* instanciation des Joueurs */
             vJoueurs = new Vector<>(iNbPlayers);
-            for(int i = 0; i < iNbPlayers; i++){
+            for (int i = 0; i < iNbPlayers; i++) {
                 Joueur joueur = new Joueur();
                 vJoueurs.addElement(joueur);
             }
@@ -149,14 +144,14 @@ public class Partie {
              * Cette liste sera réduite chaque fois qu'un Joueur n'aura plus de Terrritoire
              * La Partie prend fin lorsqu'il n'y a plus qu'un seul Joueur actif
              */
-            vJoueursActifs = (Vector)vJoueurs.clone();
+            vJoueursActifs = (Vector) vJoueurs.clone();
 
             /* Attribution des Territoires aux Joueurs */
 
             /* le clonage des Territoires permet de les éliminer un à un après attribution sans toucher à la Carte */
-            Vector<Territoire> vTerritoireAAllouer = (Vector)carte.getvTerritoires().clone();
+            Vector<Territoire> vTerritoireAAllouer = (Vector) carte.getvTerritoires().clone();
 
-            while (! vTerritoireAAllouer.isEmpty()) {
+            while (!vTerritoireAAllouer.isEmpty()) {
                 for (Joueur joueur : vJoueurs) {
 
                     int indiceTerritoire = random.nextInt(vTerritoireAAllouer.size());
@@ -200,16 +195,16 @@ public class Partie {
 
                 Vector<Territoire> vTerritoireVoisin = new Vector<>();
 
-                if((iGauche >= 0) && (territoiresMap[iGauche][iOrdinate] != null)) {
+                if ((iGauche >= 0) && (territoiresMap[iGauche][iOrdinate] != null)) {
                     vTerritoireVoisin.addElement(territoiresMap[iGauche][iOrdinate]);
                 }
-                if((iDroite < carte.getiAbscissaMax()) && (territoiresMap[iDroite][iOrdinate] != null)) {
+                if ((iDroite < carte.getiAbscissaMax()) && (territoiresMap[iDroite][iOrdinate] != null)) {
                     vTerritoireVoisin.addElement(territoiresMap[iDroite][iOrdinate]);
                 }
-                if((iBas >= 0) && (territoiresMap[iAbscissa][iBas] != null)) {
+                if ((iBas >= 0) && (territoiresMap[iAbscissa][iBas] != null)) {
                     vTerritoireVoisin.addElement(territoiresMap[iAbscissa][iBas]);
                 }
-                if((iHaut < carte.getiOrdinateMax()) && (territoiresMap[iAbscissa][iHaut] != null)) {
+                if ((iHaut < carte.getiOrdinateMax()) && (territoiresMap[iAbscissa][iHaut] != null)) {
                     vTerritoireVoisin.addElement(territoiresMap[iAbscissa][iHaut]);
                 }
 
@@ -225,11 +220,13 @@ public class Partie {
         } catch (NumberFormatException nfe) {
             System.out.println("Il faut des int pour les valeurs suivantes du fichier DiceWars.ini: nbTerritories, nbPlayers, nbDicePerPlayer");
             nfe.printStackTrace();
-        }
-        finally {
+        } finally {
             try {
-                if (appStream != null) { appStream.close(); }
-            } catch (Exception ignored) {}
+                if (appStream != null) {
+                    appStream.close();
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -280,10 +277,10 @@ public class Partie {
                 carte.displayCarte();
 
                 //Vérifier que la Partie n'est pas terminée
-                Vector<Joueur> vJoueursActifsClone = (Vector)vJoueursActifs.clone();
+                Vector<Joueur> vJoueursActifsClone = (Vector) vJoueursActifs.clone();
 
                 for (Joueur joueurActifClone : vJoueursActifsClone) {
-                    if (! joueurActifClone.isActive()) {
+                    if (!joueurActifClone.isActive()) {
                         vJoueursActifs.removeElement(joueurActifClone);
                     }
                 }
@@ -297,7 +294,7 @@ public class Partie {
                     }
                 }
 
-            } catch(TerritoryNotOwnedException tnoe) {
+            } catch (TerritoryNotOwnedException tnoe) {
                 System.out.println(tnoe.toString());
                 //tnoe.printStackTrace();
             }
@@ -336,7 +333,6 @@ public class Partie {
 
     /**
      * Constructeur par défaut
-     *
      */
     public Partie() {
         clavier = new Scanner(System.in);
