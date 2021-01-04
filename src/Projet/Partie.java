@@ -347,6 +347,8 @@ public class Partie {
 
             partie.tourDeJeu();
 
+            /* Affichage de la carte une fois les renforts pris en compte */
+            partie.carte.displayCarte();
             //TODO Persister la Partie ici!
 
         }
