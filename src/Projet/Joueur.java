@@ -26,15 +26,22 @@ public class Joueur {
     public int getiID() {
         return iID;
     }
+
     public Vector<Territoire> getvListeTerritoires() {
         return vListeTerritoires;
     }
-    public boolean isAMonTour() { return bAMonTour; }
+
+    public boolean isAMonTour() {
+        return bAMonTour;
+    }
 
     public void setiID() {
         this.iID = count++;
     }
-    public void setbAMonTour(boolean bAMonTour) { this.bAMonTour = bAMonTour; }
+
+    public void setbAMonTour(boolean bAMonTour) {
+        this.bAMonTour = bAMonTour;
+    }
 
     /**
      * Constructeur par défaut: génération automatique de l'ID
@@ -50,8 +57,7 @@ public class Joueur {
     /**
      * Ajoute un Territoire à la liste des Territoires appartenant au Joueur
      *
-     * @param       territoire Territoire à ajouter
-     *
+     * @param territoire Territoire à ajouter
      * @see Partie
      * @see Joueur#attaquerTerritoire()
      */
@@ -62,8 +68,7 @@ public class Joueur {
     /**
      * Enlève un Territoire de la liste des Territoires appartenant au Joueur
      *
-     * @param       territoire Territoire à enlever
-     *
+     * @param territoire Territoire à enlever
      * @see Joueur#attaquerTerritoire()
      */
     public void removeTerritoire(Territoire territoire) {
@@ -79,12 +84,11 @@ public class Joueur {
     /**
      * Retourne true si la liste des Territoires appartenant au Joueur est vide; false sinon
      *
-     * @return      true si la liste des Territoires appartenant au Joueur est vide; false sinon
-     *
+     * @return true si la liste des Territoires appartenant au Joueur est vide; false sinon
      * @see Partie
      */
     public boolean isActive() {
-        return ! vListeTerritoires.isEmpty();
+        return !vListeTerritoires.isEmpty();
     }
 
 //    @Override
@@ -129,8 +133,7 @@ public class Joueur {
      * lancement des dés de chaque Joueur (l'autre Joueur étant le propriétaire du Territoire attaqué);
      * comparaison des résultats et modification des listes de Territoires de chacun des 2 Joueurs
      *
-     * @throws       TerritoryNotOwnedException si le Territoire à étendre n'appartient pas au Joueur
-     *
+     * @throws TerritoryNotOwnedException si le Territoire à étendre n'appartient pas au Joueur
      * @see Partie
      */
     public void attaquerTerritoire() throws TerritoryNotOwnedException {
@@ -237,9 +240,8 @@ public class Joueur {
     /**
      * Retourne une liste de valeurs de dés (points des faces)
      *
-     * @return      liste de valeurs de dés
-     * @param       iForce nombre de dés
-     *
+     * @param iForce nombre de dés
+     * @return liste de valeurs de dés
      * @see Joueur#attaquerTerritoire()
      */
     private Vector<Integer> runDice(int iForce) {
@@ -252,44 +254,20 @@ public class Joueur {
 
         return vRetour;
     }
-/*
-    public ArrayList<Integer> attaquerTerritoire() throws TerritoryNotOwnedException {
-        Scanner scanner = new Scanner(System.in);
-        int territoireAttaquant = 0;
-        int territoireAttaque;
-        do {
-            System.out.println("Choisissez le territoire avec lequel vous attaquez :");
-            try {
-                territoireAttaquant = scanner.nextInt();
-                boolean isOwned = false;
-                for (int i = 0; i < this.listeTerritoires.size(); i++) {
-//                    if (territoireAttaquant == this.listeTerritoires.get(i).getID()){
-//                        isOwned = true;
-//                    }
-                }
-                if (!isOwned){
-                    throw new TerritoryNotOwnedException("Veuillez choisir un territoire qui vous appartient !");
-                }
-            } catch (TerritoryNotOwnedException tnoe) {
-                System.out.println(tnoe);
-            } catch (Exception e) {
-                System.out.println(e);
-            }
 
-            System.out.println("Choisissez le territoire que vous attaquez :");
-            territoireAttaque = scanner.nextInt();
-        } while (territoireAttaquant == territoireAttaque);
-        ArrayList<Integer> combat = null;
-        combat.add(territoireAttaquant);
-        combat.add(territoireAttaque);
-        scanner.close();
-        return combat;
-    }
-*/
+    /**
+     * Calcul récursif du plus grand nombre de territoires contigus du joueur
+     *
+     * @param iNbCont   compteur du nombre de territoires contigus
+     * @param terr      territoire à examiner
+     * @param vTerrDone liste des territoires déjà examinés
+     * @return plus grand nombre de territoires contigus du joueur
+     * @see Partie
+     */
     private int addContigu(int iNbCont, Territoire terr, Vector<Territoire> vTerrDone) {
         for (Territoire terrJoueur : terr.getvTerritoireVoisin()) {
-            if ((! vTerrDone.contains(terrJoueur)) && (terrJoueur.getOwner().getiID() == iID)) {
-                iNbCont ++;
+            if ((!vTerrDone.contains(terrJoueur)) && (terrJoueur.getOwner().getiID() == iID)) {
+                iNbCont++;
                 vTerrDone.addElement(terrJoueur);
                 iNbCont = addContigu(iNbCont, terrJoueur, vTerrDone);
             }
@@ -301,17 +279,13 @@ public class Joueur {
      * Attribution des dés de renfort au Joueur à la fin du tour
      * Distribution aléatoire des dés de renfort sur les territoires du Joueur
      *
-     *
      * @see Partie
      */
     public void terminerTour() {
-        /* A implémenter */
-        // TODO redistrib aléatoire
-
         int iNbMaxContigus = 0;
         Vector<Territoire> vTerrDone = new Vector<>();
         for (Territoire terrJoueur : vListeTerritoires) {
-            if (! vTerrDone.contains(terrJoueur)) {
+            if (!vTerrDone.contains(terrJoueur)) {
                 vTerrDone.addElement(terrJoueur);
                 int iNbContigus = addContigu(1, terrJoueur, vTerrDone);
                 if (iNbContigus > iNbMaxContigus) {
@@ -319,11 +293,20 @@ public class Joueur {
                 }
             }
         }
-
         System.out.println("Territoires contigus = " + iNbMaxContigus);
-        if (! vTerrDone.isEmpty()) {
+        if (!vTerrDone.isEmpty()) {
             System.out.println("Territoires examinés : " + vTerrDone.toString());
         }
+        Random random1 = new Random();
+        Random random2 = new Random();
+        int forceAjoutee, territoireRenforce;
+        do {
+            forceAjoutee = random1.nextInt(iNbMaxContigus) + 1;
+            territoireRenforce = random2.nextInt(this.vListeTerritoires.size());
+            this.vListeTerritoires.get(territoireRenforce).setiForce(this.vListeTerritoires.get(territoireRenforce).getiForce() + forceAjoutee);
+            System.out.println("Le territoire " + this.vListeTerritoires.get(territoireRenforce).getiId() + " a gagné " + forceAjoutee + " points de force !");
+            iNbMaxContigus -= forceAjoutee;
+        } while (iNbMaxContigus > 0);
 
         bAMonTour = false;
     }
