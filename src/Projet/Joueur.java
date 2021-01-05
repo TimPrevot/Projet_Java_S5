@@ -1,8 +1,11 @@
 package projet;
 
+import projet.exceptions.TerritoryAlreadyOwnedException;
+import projet.exceptions.TerritoryDistantException;
+import projet.exceptions.TerritoryNotOwnedException;
+import projet.exceptions.TerritoryTooWeakException;
+
 import java.util.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 /**

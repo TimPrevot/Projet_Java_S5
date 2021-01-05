@@ -1,5 +1,8 @@
 package projet;
 
+import projet.exceptions.EmptyFileException;
+import projet.exceptions.TerritoryAlreadyExistsException;
+
 import java.io.*;
 import java.util.StringTokenizer;
 import java.util.Vector;

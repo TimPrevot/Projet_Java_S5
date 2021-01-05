@@ -77,7 +77,7 @@ public class Territoire {
     /**
      * Constructeur par défaut: génération automatique de l'ID
      *
-     * @see Carte(int, int, int)
+     * @see Carte
      */
     public Territoire() {
         this.setiId();
@@ -87,7 +87,7 @@ public class Territoire {
      * Utilisé si on initialise la Carte via un fichier CSV
      *
      * @param iId ID du Territoire
-     * @see Carte(String)
+     * @see Carte
      */
     public Territoire(int iId) {
         this.iId = iId;

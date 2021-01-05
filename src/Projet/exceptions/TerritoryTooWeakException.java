@@ -1,4 +1,4 @@
-package projet;
+package projet.exceptions;
 
 public class TerritoryTooWeakException extends Exception {
     public TerritoryTooWeakException(final String message) {

@@ -1,5 +1,7 @@
 package projet;
 
+import projet.exceptions.*;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -327,6 +329,7 @@ public class Partie {
      * Instanciation d'une Partie
      * Boucle sur les tours de jeu jusqu'à la fin de Partie
      *
+     * @param args
      * @see Partie#tourDeJeu()
      */
     public static void main(String[] args) {
