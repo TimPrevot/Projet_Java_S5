@@ -168,7 +168,7 @@ public class Partie {
 
             /*
              * initialisation des Joueurs actifs (qui n'ont pas perdu)
-             * Cette liste sera réduite chaque fois qu'un Joueur n'aura plus de Terrritoire
+             * Cette liste sera réduite chaque fois qu'un Joueur n'aura plus de Territoire
              * La Partie prend fin lorsqu'il n'y a plus qu'un seul Joueur actif
              */
             vJoueursActifs = (Vector) vJoueurs.clone();

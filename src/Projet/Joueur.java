@@ -15,13 +15,10 @@ import java.util.Scanner;
 public class Joueur {
 
     private static int count = 0;                       // pour la génération automatique d'ID
-
     private int iID = 0;                                // ID du Joueur
-    //private ArrayList<Territoire> listeTerritoires;
     private Vector<Territoire> vListeTerritoires;       // liste des Territoires appartenant au Joueur
     private Scanner clavier;
     private boolean bAMonTour = false;                  // permet au Joueur d'attaquer autant de fois qu'il le souhaite
-    //    private boolean bPartieEnCours = false; // Threads....
 
     public int getiID() {
         return iID;
@@ -253,13 +250,13 @@ public class Joueur {
         }
         Random random1 = new Random();
         Random random2 = new Random();
-        int forceAjoutee, territoireRenforce;
+        int iForceAjoutee, iTerritoireRenforce;
         do {
-            forceAjoutee = random1.nextInt(iNbMaxContigus) + 1;
-            territoireRenforce = random2.nextInt(this.vListeTerritoires.size());
-            this.vListeTerritoires.get(territoireRenforce).setiForce(this.vListeTerritoires.get(territoireRenforce).getiForce() + forceAjoutee);
-            System.out.println("Le territoire " + this.vListeTerritoires.get(territoireRenforce).getiId() + " a gagné " + forceAjoutee + " points de force !");
-            iNbMaxContigus -= forceAjoutee;
+            iForceAjoutee = random1.nextInt(iNbMaxContigus) + 1;
+            iTerritoireRenforce = random2.nextInt(this.vListeTerritoires.size());
+            this.vListeTerritoires.get(iTerritoireRenforce).setiForce(this.vListeTerritoires.get(iTerritoireRenforce).getiForce() + iForceAjoutee);
+            System.out.println("Le territoire " + this.vListeTerritoires.get(iTerritoireRenforce).getiId() + " a gagné " + iForceAjoutee + " points de force !");
+            iNbMaxContigus -= iForceAjoutee;
         } while (iNbMaxContigus > 0);
 
         bAMonTour = false;
