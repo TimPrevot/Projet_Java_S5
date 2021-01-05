@@ -95,6 +95,8 @@ public class Partie {
 
     /**
      * Initialisation de la Partie
+     *
+     * @throws BadInitException si le nombre de territoires n'est pas multiple du nombre de joueurs
      */
     private void init() throws BadInitException {
         FileInputStream appStream = null;
@@ -245,6 +247,12 @@ public class Partie {
         } catch (NumberFormatException nfe) {
             System.out.println("Il faut des int pour les valeurs suivantes du fichier DiceWars.ini: nbTerritories, nbPlayers, nbDicePerPlayer");
             nfe.printStackTrace();
+        } catch (TerritoryAlreadyExistsException taee) {
+            System.out.println(taee.toString());
+            taee.printStackTrace();
+        } catch (EmptyFileException efe) {
+            System.out.println(efe.toString());
+            efe.printStackTrace();
         } finally {
             try {
                 if (appStream != null) {
@@ -254,26 +262,6 @@ public class Partie {
             }
         }
     }
-
-//    private void begin(){
-//        for (int i=0; i < iNbPlayers; i++) {
-//            joueurs[i].start();
-//        }
-//    }
-//
-//    private void tourDeJeu(){
-//        //Affichage de la Carte
-//        carte.displayCarte();
-//
-//        //Sélection aléatoire d'un Joueur actif
-//        Random random = new Random();
-//        int iTour = random.nextInt(iNbPlayers);
-//        System.out.println("iTour = " + iTour);
-//        //joueurs[iTour].setToPlay(true);
-//        //joueurs[iTour].notify();
-//        joueurs[iTour].setBAMonTour(true);
-//        System.out.println("Les joueurs jouent...");
-//    }
 
     /**
      * Sélectionne aléatoirement un Joueur ACTIF
@@ -321,7 +309,16 @@ public class Partie {
 
             } catch (TerritoryNotOwnedException tnoe) {
                 System.out.println(tnoe.toString());
-                //tnoe.printStackTrace();
+                tnoe.printStackTrace();
+            } catch (TerritoryTooWeakException ttwe) {
+                System.out.println(ttwe.toString());
+                ttwe.printStackTrace();
+            } catch (TerritoryAlreadyOwnedException taoe) {
+                System.out.println(taoe.toString());
+                taoe.printStackTrace();
+            } catch (TerritoryDistantException tde) {
+                System.out.println(tde.toString());
+                tde.printStackTrace();
             }
         }
     }
@@ -332,38 +329,44 @@ public class Partie {
      *
      * @see Partie#tourDeJeu()
      */
-    public static void main(String[] args) throws BadInitException {
+    public static void main(String[] args) {
         Partie partie = new Partie();
-        partie.init();
-        //partie.begin(); // Utilisation des Threads
+        try {
+            partie.init();
+            //partie.begin(); // Utilisation des Threads
 
-        /* affichage de la Carte */
-        partie.carte.displayCarte();
-
-        //TODO Persister la Partie ici!
-
-        partie.bPartieEnCours = true;
-        while (partie.bPartieEnCours) {
-
-            partie.tourDeJeu();
-
-            /* Affichage de la carte une fois les renforts pris en compte */
+            /* affichage de la Carte */
             partie.carte.displayCarte();
+
             //TODO Persister la Partie ici!
 
+            partie.bPartieEnCours = true;
+            while (partie.bPartieEnCours) {
+
+                partie.tourDeJeu();
+
+                /* Affichage de la carte une fois les renforts pris en compte */
+                partie.carte.displayCarte();
+                //TODO Persister la Partie ici!
+
+            }
+
+            System.out.println("   F I N   D E   P A R T I E");
+            System.out.println();
+            System.out.println("Le Joueur " + partie.vJoueursActifs.firstElement().getiID() + " a gagné !");
+
+            partie.terminate();
+        } catch (BadInitException bie) {
+            System.out.println(bie.toString());
+            bie.printStackTrace();
         }
-
-        System.out.println("   F I N   D E   P A R T I E");
-        System.out.println();
-        System.out.println("Le Joueur " + partie.vJoueursActifs.firstElement().getiID() + " a gagné !");
-
-        partie.terminate();
     }
 
     public void terminate() {
         try {
             clavier.close();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     /**
