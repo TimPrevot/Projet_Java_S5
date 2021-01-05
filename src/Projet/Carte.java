@@ -1,5 +1,8 @@
 package projet;
 
+import projet.exceptions.EmptyFileException;
+import projet.exceptions.TerritoryAlreadyExistsException;
+
 import java.io.*;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -16,18 +19,28 @@ public class Carte {
     private Territoire[][] territoiresMap = null;   // matrice des Territoires
     private Vector<Territoire> vTerritoires;        // utile pour établir la liste des Territoires voisins (entre autres)
 
-    public int getiAbscissaMax() { return iAbscissaMax; }
-    public int getiOrdinateMax() { return iOrdinateMax; }
-    public Territoire[][] getTerritoiresMap() { return territoiresMap; }
-    public Vector<Territoire> getvTerritoires() { return vTerritoires; }
+    public int getiAbscissaMax() {
+        return iAbscissaMax;
+    }
+
+    public int getiOrdinateMax() {
+        return iOrdinateMax;
+    }
+
+    public Territoire[][] getTerritoiresMap() {
+        return territoiresMap;
+    }
+
+    public Vector<Territoire> getvTerritoires() {
+        return vTerritoires;
+    }
 
     /**
      * Constructeur par défaut: initialisation aléatoire de la Carte
      *
-     * @param       iAbscissaMax largeur de la matrice des Territoires
-     * @param       iOrdinateMax longueur de la matrice des Territoires
-     * @param       iNbEquitable nombre de Territoires à instancier dans la matrice
-     *
+     * @param iAbscissaMax largeur de la matrice des Territoires
+     * @param iOrdinateMax longueur de la matrice des Territoires
+     * @param iNbEquitable nombre de Territoires à instancier dans la matrice
      * @see Carte(String)
      */
     public Carte(int iAbscissaMax, int iOrdinateMax, int iNbEquitable) {
@@ -57,11 +70,12 @@ public class Carte {
     /**
      * Initialisation de la Carte à partir d'un fichier CSV
      *
-     * @param       sCSVFileName nom du fichier CSV (path complet)
-     *
+     * @param sCSVFileName nom du fichier CSV (path complet)
+     * @throws TerritoryAlreadyExistsException si deux Territoires possèdent le même ID
+     * @throws EmptyFileException              si le fichier CSV est vide
      * @see Carte(int, int, int)
      */
-    public Carte(String sCSVFileName) {
+    public Carte(String sCSVFileName) throws TerritoryAlreadyExistsException, EmptyFileException {
         BufferedReader bfIn = null;
         try {
             bfIn = new BufferedReader(new FileReader(sCSVFileName));
@@ -100,12 +114,12 @@ public class Carte {
                         String strId = strToken.nextToken();
                         //System.out.println("ordonnee " + iOrdinate + " strId : " + strId);
 
-                        if (! strId.equals("null")) {
+                        if (!strId.equals("null")) {
 
                             /* vérification ID de Territoire non déjà existant */
                             int iId = Integer.parseInt(strId);
                             if (isTerritoireExistant(iId)) {
-                                // TODO Throw new Exception
+                                throw new TerritoryAlreadyExistsException("Ce territoire existe déjà !");
                             } else {
                                 Territoire territoire = new Territoire(iId);
                                 territoire.setiAbscissa(iAbscissa);
@@ -119,9 +133,8 @@ public class Carte {
                     iAbscissa++;
                 }
             } else {
-
                 /* fichier CSV vide */
-                // TODO Throw new Exception
+                throw new EmptyFileException("Le fichier CSV est vide !");
             }
         } catch (FileNotFoundException fnfe) {
             System.out.println("Fichier introuvable");
@@ -129,22 +142,24 @@ public class Carte {
         } catch (IOException ioe) {
             System.out.println("IO erreur");
             ioe.printStackTrace();
-        } catch (NumberFormatException nfe){
+        } catch (NumberFormatException nfe) {
             System.out.println("Le fichier CSV doit contenir des int ou 'null'");
             nfe.printStackTrace();
         } finally {
             try {
-                if (bfIn != null){bfIn.close();}
-            } catch (Exception ignored) {}
+                if (bfIn != null) {
+                    bfIn.close();
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 
     /**
      * Vérification de l'unicité de l'ID d'un Territoire
      *
-     * @return      true si l'ID existe déjà dans la matrice des Territoires; false sinon
-     * @param       iId ID du Territoire
-     *
+     * @param iId ID du Territoire
+     * @return true si l'ID existe déjà dans la matrice des Territoires; false sinon
      * @see Carte(String)
      */
     private boolean isTerritoireExistant(int iId) {
@@ -171,8 +186,8 @@ public class Carte {
         System.out.println();
         for (int i = 0; i < iAbscissaMax; i++) {
             for (int j = 0; j < iOrdinateMax; j++) {
-                if(territoiresMap[i][j] != null) {
-                    System.out.print(territoiresMap[i][j].getiId() + " Owner:" + territoiresMap[i][j].getOwner().getiID() + " Force:" + territoiresMap[i][j].getiForce() + "\t|\t" );
+                if (territoiresMap[i][j] != null) {
+                    System.out.print(territoiresMap[i][j].getiId() + " Owner:" + territoiresMap[i][j].getOwner().getiID() + " Force:" + territoiresMap[i][j].getiForce() + "\t|\t");
                 } else {
                     System.out.print("      NULL      \t|\t");
                 }

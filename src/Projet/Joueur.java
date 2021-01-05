@@ -1,8 +1,11 @@
 package projet;
 
+import projet.exceptions.TerritoryAlreadyOwnedException;
+import projet.exceptions.TerritoryDistantException;
+import projet.exceptions.TerritoryNotOwnedException;
+import projet.exceptions.TerritoryTooWeakException;
+
 import java.util.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Scanner;
 
 /**
@@ -15,13 +18,10 @@ import java.util.Scanner;
 public class Joueur {
 
     private static int count = 0;                       // pour la génération automatique d'ID
-
     private int iID = 0;                                // ID du Joueur
-    //private ArrayList<Territoire> listeTerritoires;
     private Vector<Territoire> vListeTerritoires;       // liste des Territoires appartenant au Joueur
     private Scanner clavier;
     private boolean bAMonTour = false;                  // permet au Joueur d'attaquer autant de fois qu'il le souhaite
-    //    private boolean bPartieEnCours = false; // Threads....
 
     public int getiID() {
         return iID;
@@ -75,12 +75,6 @@ public class Joueur {
         this.vListeTerritoires.removeElement(territoire);
     }
 
-//    @Override
-//    public void start() {
-//        super.start();
-//        bPartieEnCours = true;
-//    }
-
     /**
      * Retourne true si la liste des Territoires appartenant au Joueur est vide; false sinon
      *
@@ -91,52 +85,18 @@ public class Joueur {
         return !vListeTerritoires.isEmpty();
     }
 
-//    @Override
-//    public void run() {
-//        System.out.println("Joueur numéro " + ID);
-//        while (bPartieEnCours) {
-//            jouerUntour();
-//        }
-//
-//    }
-//    private synchronized void jouerUntour() {
-//        try {
-//            DateFormat df = new SimpleDateFormat("HH:mm:ss");
-//            //System.out.println(df.format(new Date()) + " " + getName() + " " + getState() + " Joueur " + ID);
-//            while (!bAMonTour){
-//                wait();
-//            }
-//
-//            iCount++;
-//            System.out.println(df.format(new Date()) + " " + getName() + " " + getState() + " Joueur " + ID + " compteur: " + iCount);
-//            if (!isInterrupted()){
-//                Thread.sleep(1000);
-//
-//            }
-//            notifyAll();
-//            if (iCount > 4){
-//                othersToGo();
-//                System.out.println("fin");
-//            }
-//        } catch (InterruptedException  ie){
-//            Thread.currentThread().interrupt();
-//            ie.printStackTrace();
-//        }
-//    }
-//    private void othersToGo(){
-//            System.out.println("Others to go");
-//        bPartieEnCours = false;
-//    }
-
     /**
      * Choix du Territoire à étendre et du Territoire à attaquer;
      * lancement des dés de chaque Joueur (l'autre Joueur étant le propriétaire du Territoire attaqué);
      * comparaison des résultats et modification des listes de Territoires de chacun des 2 Joueurs
      *
-     * @throws TerritoryNotOwnedException si le Territoire à étendre n'appartient pas au Joueur
+     * @throws TerritoryNotOwnedException     si le Territoire à étendre n'appartient pas au Joueur
+     * @throws TerritoryTooWeakException      si le Territoire à étendre a une force de 1
+     * @throws TerritoryAlreadyOwnedException si le Territoire à attaquer appartient déjà au joueur
+     * @throws TerritoryDistantException      si le Territoire à attaquer n'est pas voisin du Territoire attaquant
      * @see Partie
      */
-    public void attaquerTerritoire() throws TerritoryNotOwnedException {
+    public void attaquerTerritoire() throws TerritoryNotOwnedException, TerritoryTooWeakException, TerritoryAlreadyOwnedException, TerritoryDistantException {
         //Scanner clavier = new Scanner(System.in);
         Territoire territoireAttaquant = null;
         Territoire territoireAttaque = null;
@@ -157,8 +117,7 @@ public class Joueur {
                 throw new TerritoryNotOwnedException("Veuillez choisir un territoire qui vous appartient !");
             }
             if (territoireAttaquant.getiForce() < 2) {
-                //TODO throw new TerritoryTooWeakException("Le Territoire que vous souhaitez étendre est trop faible");
-                System.out.println("Le Territoire que vous souhaitez étendre est trop faible");
+                throw new TerritoryTooWeakException("Le Territoire que vous souhaitez étendre est trop faible");
             }
 
             System.out.print("Territoire attaqué : ");
@@ -173,8 +132,7 @@ public class Joueur {
                 }
             }
             if (isOwned) {
-                //TODO throw new TerritoryAlreadyOwnedException("Veuillez attaquer un territoire qui NE vous appartient PAS !");
-                System.out.println("Veuillez attaquer un territoire qui NE vous appartient PAS !");
+                throw new TerritoryAlreadyOwnedException("Veuillez attaquer un territoire qui NE vous appartient PAS !");
             }
 
             /* contrôler que le Territoire attaqué est un Territoire voisin du Territoire à étendre */
@@ -187,8 +145,7 @@ public class Joueur {
                 }
             }
             if (!isVoisin) {
-                //TODO throw new TerritoryDistantException("Le Territoire attaqué n'est pas voisin du Territoire que vous souhaitez étendre");
-                System.out.println("Le Territoire attaqué n'est pas voisin du Territoire que vous souhaitez étendre");
+                throw new TerritoryDistantException("Le Territoire attaqué n'est pas voisin du Territoire que vous souhaitez étendre");
             }
 
             System.out.println("Attaquant: " + territoireAttaquant.getiId() + " Attaqué: " + territoireAttaque.getiId());
@@ -231,9 +188,6 @@ public class Joueur {
             System.out.println("Entrée invalide; saisir un int SVP");
             //ime.printStackTrace();
         } finally {
-            //            try {
-            //                if (clavier != null){clavier.close();}
-            //            } catch (Exception ignored) {}
         }
     }
 
@@ -299,13 +253,13 @@ public class Joueur {
         }
         Random random1 = new Random();
         Random random2 = new Random();
-        int forceAjoutee, territoireRenforce;
+        int iForceAjoutee, iTerritoireRenforce;
         do {
-            forceAjoutee = random1.nextInt(iNbMaxContigus) + 1;
-            territoireRenforce = random2.nextInt(this.vListeTerritoires.size());
-            this.vListeTerritoires.get(territoireRenforce).setiForce(this.vListeTerritoires.get(territoireRenforce).getiForce() + forceAjoutee);
-            System.out.println("Le territoire " + this.vListeTerritoires.get(territoireRenforce).getiId() + " a gagné " + forceAjoutee + " points de force !");
-            iNbMaxContigus -= forceAjoutee;
+            iForceAjoutee = random1.nextInt(iNbMaxContigus) + 1;
+            iTerritoireRenforce = random2.nextInt(this.vListeTerritoires.size());
+            this.vListeTerritoires.get(iTerritoireRenforce).setiForce(this.vListeTerritoires.get(iTerritoireRenforce).getiForce() + iForceAjoutee);
+            System.out.println("Le territoire " + this.vListeTerritoires.get(iTerritoireRenforce).getiId() + " a gagné " + iForceAjoutee + " points de force !");
+            iNbMaxContigus -= iForceAjoutee;
         } while (iNbMaxContigus > 0);
 
         bAMonTour = false;

@@ -21,30 +21,63 @@ public class Territoire {
     private int iOrdinate;                          // ordonnée du Territoire dans la matrice Carte
     private Vector<Territoire> vTerritoireVoisin;   // liste des Territoires voisins
 
-    public static int getMAX_FORCE() { return MAX_FORCE; }
+    public static int getMAX_FORCE() {
+        return MAX_FORCE;
+    }
 
-    public int getiId() { return iId; }
-    public Joueur getOwner() { return owner; }
-    public int getiForce() { return iForce; }
-    public int getiAbscissa() { return iAbscissa; }
-    public int getiOrdinate() { return iOrdinate; }
-    public Vector<Territoire> getvTerritoireVoisin() { return vTerritoireVoisin; }
+    public int getiId() {
+        return iId;
+    }
+
+    public Joueur getOwner() {
+        return owner;
+    }
+
+    public int getiForce() {
+        return iForce;
+    }
+
+    public int getiAbscissa() {
+        return iAbscissa;
+    }
+
+    public int getiOrdinate() {
+        return iOrdinate;
+    }
+
+    public Vector<Territoire> getvTerritoireVoisin() {
+        return vTerritoireVoisin;
+    }
 
     private void setiId() {
         this.iId = count++;
     }
 
-    public void setOwner(Joueur owner) { this.owner = owner; }
-    public void setiForce(int iForce) { this.iForce = iForce; }
-    public void setiAbscissa(int iAbscissa) { this.iAbscissa = iAbscissa; }
-    public void setiOrdinate(int iOrdinate) { this.iOrdinate = iOrdinate; }
-    public void setvTerritoireVoisin(Vector<Territoire> vTerritoireVoisin) { this.vTerritoireVoisin = vTerritoireVoisin; }
+    public void setOwner(Joueur owner) {
+        this.owner = owner;
+    }
+
+    public void setiForce(int iForce) {
+        this.iForce = iForce;
+    }
+
+    public void setiAbscissa(int iAbscissa) {
+        this.iAbscissa = iAbscissa;
+    }
+
+    public void setiOrdinate(int iOrdinate) {
+        this.iOrdinate = iOrdinate;
+    }
+
+    public void setvTerritoireVoisin(Vector<Territoire> vTerritoireVoisin) {
+        this.vTerritoireVoisin = vTerritoireVoisin;
+    }
 
 
     /**
      * Constructeur par défaut: génération automatique de l'ID
      *
-     * @see Carte(int, int, int)
+     * @see Carte
      */
     public Territoire() {
         this.setiId();
@@ -53,11 +86,10 @@ public class Territoire {
     /**
      * Utilisé si on initialise la Carte via un fichier CSV
      *
-     * @param       iId ID du Territoire
-     *
-     * @see Carte(String)
+     * @param iId ID du Territoire
+     * @see Carte
      */
-    public Territoire(int iId){
+    public Territoire(int iId) {
         this.iId = iId;
     }
 
