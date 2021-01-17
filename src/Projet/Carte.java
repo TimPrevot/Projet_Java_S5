@@ -35,6 +35,22 @@ public class Carte {
         return vTerritoires;
     }
 
+    public void setiAbscissaMax(int iAbscissaMax) {
+        this.iAbscissaMax = iAbscissaMax;
+    }
+
+    public void setiOrdinateMax(int iOrdinateMax) {
+        this.iOrdinateMax = iOrdinateMax;
+    }
+
+    public void setTerritoiresMap(Territoire[][] territoiresMap) {
+        this.territoiresMap = territoiresMap;
+    }
+
+    public void setvTerritoires(Vector<Territoire> vTerritoires) {
+        this.vTerritoires = vTerritoires;
+    }
+
     /**
      * Constructeur par défaut: initialisation aléatoire de la Carte
      *
@@ -152,6 +168,30 @@ public class Carte {
                 }
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    /**
+     * Constructeur de la carte utilisé pour charger une partie à partir d'une sauvegarde
+     *
+     * @see Partie#loadCSV()
+     *
+     * @param territoires vecteur contenant les territoires de la partie
+     * @param abscissaMax abscisse maximale de la carte
+     * @param ordinateMax ordonnée maximale de la carte
+     */
+    public Carte(Vector<Territoire> territoires, int abscissaMax, int ordinateMax) {
+        this.setiAbscissaMax(abscissaMax + 1);
+        this.setiOrdinateMax(ordinateMax + 1);
+        this.territoiresMap = new Territoire[iAbscissaMax + 1][iOrdinateMax + 1];
+        this.setvTerritoires(territoires);
+        for (Territoire territoire : territoires) {
+            this.territoiresMap[territoire.getiAbscissa()][territoire.getiOrdinate()] = new Territoire();
+
+            this.territoiresMap[territoire.getiAbscissa()][territoire.getiOrdinate()].setOwner(territoire.getOwner());
+            this.territoiresMap[territoire.getiAbscissa()][territoire.getiOrdinate()].setiForce(territoire.getiForce());
+            this.territoiresMap[territoire.getiAbscissa()][territoire.getiOrdinate()].setiAbscissa(territoire.getiAbscissa());
+            this.territoiresMap[territoire.getiAbscissa()][territoire.getiOrdinate()].setiOrdinate(territoire.getiOrdinate());
         }
     }
 

@@ -14,7 +14,7 @@ import java.util.Scanner;
  * @see Partie
  * @see Territoire
  */
-//public class Joueur extends Thread {
+
 public class Joueur {
 
     private static int count = 0;                       // pour la génération automatique d'ID
@@ -51,6 +51,18 @@ public class Joueur {
     public Joueur() {
         this.setiID();
         this.vListeTerritoires = new Vector();
+        clavier = new Scanner(System.in);
+    }
+
+    /**
+     * Constructeur utilisé lors du chargement depuis un fichier CSV
+     *
+     * @see Partie
+     *
+     */
+    public Joueur (int iId) {
+        this.iID = iId;
+        this.vListeTerritoires = new Vector<>();
         clavier = new Scanner(System.in);
     }
 
@@ -92,12 +104,11 @@ public class Joueur {
      *
      * @throws TerritoryNotOwnedException     si le Territoire à étendre n'appartient pas au Joueur
      * @throws TerritoryTooWeakException      si le Territoire à étendre a une force de 1
-     * @throws TerritoryAlreadyOwnedException si le Territoire à attaquer appartient déjà au joueur
+     * @throws TerritoryAlreadyOwnedException si le Territoire à attaquer appartient déjà au Joueur
      * @throws TerritoryDistantException      si le Territoire à attaquer n'est pas voisin du Territoire attaquant
      * @see Partie
      */
     public void attaquerTerritoire() throws TerritoryNotOwnedException, TerritoryTooWeakException, TerritoryAlreadyOwnedException, TerritoryDistantException {
-        //Scanner clavier = new Scanner(System.in);
         Territoire territoireAttaquant = null;
         Territoire territoireAttaque = null;
         try {
@@ -171,17 +182,16 @@ public class Joueur {
 
             if (iTotalAttaquant > iTotalAttaque) {
                 territoireAttaque.getOwner().removeTerritoire(territoireAttaque);
-                addTerritoire(territoireAttaque);
+                territoireAttaquant.getOwner().addTerritoire(territoireAttaque);
 
                 territoireAttaque.setOwner(this);
 
                 territoireAttaque.setiForce(territoireAttaquant.getiForce() - 1);
                 territoireAttaquant.setiForce(1);
+                System.out.println("Nouvelle force de l'attaquant: " + territoireAttaquant.getiForce());
 
             } else if (iTotalAttaque > iTotalAttaquant) {
                 territoireAttaquant.setiForce(1);
-            } else {
-                //TODO Que fait-on en cas d'égalité???
             }
 
         } catch (InputMismatchException ime) {

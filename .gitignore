@@ -34,3 +34,4 @@ docs/
 .idea/
 
 src/Projet/DiceWars.ini
+/src/projet/save.csv

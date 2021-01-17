@@ -2,9 +2,7 @@ package projet;
 
 import projet.exceptions.*;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -107,8 +105,6 @@ public class Partie {
             appStream = new FileInputStream("src/Projet/DiceWars.ini");
             prop.load(appStream);
 
-            //System.out.println("generalPath: " + prop.getProperty("generalPath"));
-            //System.out.println("CSVFileName: " + prop.getProperty("CSVFileName"));
             String sGeneralPath = prop.getProperty("generalPath");
             String sCSVFileName = prop.getProperty("CSVFileName");
             int iNbTerritories = Integer.parseInt(prop.getProperty("nbTerritories"));
@@ -150,12 +146,18 @@ public class Partie {
                     this.carte = new Carte(iAbscissesMaxSqrt, iAbscissesMaxSqrt, iNbTerrEquitable);
                 }
             }
+            if (iNbPlayers < 2){
+                iNbPlayers = 2;
+            }
 
-            //TODO Vérifications
-            //nbDice doit être suffisant pour avoir au moins 1 dé par Territoire par Player
-            //nb de Territoires > nb Joueurs
-            //nb Joueurs > 1
-
+            // nbDice doit être suffisant pour avoir au moins 1 dé par Territoire par Player
+            while (iNbDicePerPlayer < (iNbTerrEquitable / iNbPlayers)) {
+                iNbDicePerPlayer++;
+            }
+            // nb de Territoires > nb Joueurs
+            if (iNbTerrEquitable < iNbPlayers) {
+                iNbTerrEquitable = iNbPlayers;
+            }
 
             // Vérification et réduction du nombre de dés si nécessaire
             int iNbDiceEquitable = nbDiceEquitable(iNbDicePerPlayer, iNbPlayers, iNbTerrEquitable);
@@ -325,23 +327,185 @@ public class Partie {
         }
     }
 
+    /*
+    * Sauvegarde la partie en cours sur un fichier CSV
+    *
+    */
+    public void saveCSV() {
+        PrintStream out = null;
+        Vector<Territoire> sMap = this.carte.getvTerritoires();
+
+        try {
+            System.out.println("Sauvegarde dans le fichier");
+
+            FileWriter writer = new FileWriter("src/projet/save.csv");
+            for (Territoire terr : sMap) {
+
+                writer.append(Integer.toString(terr.getiId()));
+                writer.append(";");
+                writer.append(Integer.toString(terr.getOwner().getiID()));
+                writer.append(";");
+                writer.append(Integer.toString(terr.getiForce()));
+                writer.append(";");
+                writer.append(Integer.toString(terr.getiAbscissa()));
+                writer.append(";");
+                writer.append(Integer.toString(terr.getiOrdinate()));
+                writer.append(System.lineSeparator());
+            }
+            writer.flush();
+        } catch (IOException e) {
+            System.err.println("IOException: " + e.getMessage());
+        } finally {
+            System.out.println("Sauvegarde réussie");
+
+        }
+    }
+
+    /*
+    * Charge une partie depuis un fichier CSV
+    *
+    */
+    public void loadCSV() {
+        BufferedReader bfIn = null;
+        try {
+            bfIn = new BufferedReader(new FileReader("src/projet/save.csv"));
+            String sLine;
+            int iAbscissaMax = 0, iOrdinateMax = 0;
+            this.vJoueurs = new Vector<Joueur>();
+            boolean joueurExists = false;
+            Vector<Territoire> territoires = new Vector<>();
+            StringTokenizer strToken;
+            while ((sLine = bfIn.readLine()) != null) {
+                strToken = new StringTokenizer(sLine, ";");
+                while (strToken.hasMoreTokens()) {
+                    // Attribution de l'ID
+                    String strID = strToken.nextToken();
+                    joueurExists = false;
+
+                    Territoire territoire = new Territoire(Integer.parseInt(strID));
+                    // Attribution de l'owner
+                    strID = strToken.nextToken();
+                    if (vJoueurs != null) {
+                        for (Joueur joueur : vJoueurs){
+                            if ((joueur.getiID() == Integer.parseInt(strID))){
+                                territoire.setOwner(joueur);
+                                joueurExists = true;
+                            }
+                        }
+                    }
+                    if (!joueurExists){
+                        Joueur newJoueur = new Joueur(Integer.parseInt(strID));
+                        territoire.setOwner(newJoueur);
+                        vJoueurs.addElement(newJoueur);
+                    }
+                    // Attribution de la force
+                    strID = strToken.nextToken();
+                    territoire.setiForce(Integer.parseInt(strID));
+                    // Attribution des coordonnées
+                    strID = strToken.nextToken();
+                    territoire.setiAbscissa(Integer.parseInt(strID));
+                    if (Integer.parseInt(strID) > iAbscissaMax){
+                        iAbscissaMax = Integer.parseInt(strID);
+                    }
+                    int iAbscissa = territoire.getiAbscissa();
+                    strID = strToken.nextToken();
+                    territoire.setiOrdinate(Integer.parseInt(strID));
+                    if (Integer.parseInt(strID) > iOrdinateMax){
+                        iOrdinateMax = Integer.parseInt(strID);
+                    }
+                    int iOrdinate = territoire.getiOrdinate();
+                    territoires.addElement(territoire);
+                }
+            }
+
+            this.vJoueursActifs = (Vector<Joueur>) vJoueurs.clone();
+            System.out.println("nbterritoires: " + territoires.size());
+            this.carte = new Carte(territoires, iAbscissaMax, iOrdinateMax);
+
+            // Affectation des territoires voisins
+            Territoire[][] territoiresMap = carte.getTerritoiresMap();
+            for (Territoire terr : carte.getvTerritoires()) {
+                int iAbscissa = terr.getiAbscissa();
+                int iOrdinate = terr.getiOrdinate();
+                int iGauche = iAbscissa - 1;
+                int iDroite = iAbscissa + 1;
+                int iBas = iOrdinate - 1;
+                int iHaut = iOrdinate + 1;
+
+                Vector<Territoire> vTerritoireVoisin = new Vector<>();
+
+                if ((iGauche >= 0) && (territoiresMap[iGauche][iOrdinate] != null)) {
+                    vTerritoireVoisin.addElement(territoiresMap[iGauche][iOrdinate]);
+                }
+                if ((iDroite < carte.getiAbscissaMax()) && (territoiresMap[iDroite][iOrdinate] != null)) {
+                    vTerritoireVoisin.addElement(territoiresMap[iDroite][iOrdinate]);
+                }
+                if ((iBas >= 0) && (territoiresMap[iAbscissa][iBas] != null)) {
+                    vTerritoireVoisin.addElement(territoiresMap[iAbscissa][iBas]);
+                }
+                if ((iHaut < carte.getiOrdinateMax()) && (territoiresMap[iAbscissa][iHaut] != null)) {
+                    vTerritoireVoisin.addElement(territoiresMap[iAbscissa][iHaut]);
+                }
+
+                terr.setvTerritoireVoisin(vTerritoireVoisin);
+                this.carte.getTerritoiresMap()[iAbscissa][iOrdinate].setvTerritoireVoisin(vTerritoireVoisin);
+                for (Joueur joueur : vJoueurs){
+                    if (terr.getOwner().getiID() == joueur.getiID()){
+                        terr.setOwner(joueur);
+                    }
+                }
+            }
+            // On inscrit les territoires dans la liste des territoires de chaque joueur
+            Vector<Territoire> territoiresNonAssignes = (Vector) carte.getvTerritoires().clone();
+            while (!territoiresNonAssignes.isEmpty()){
+                for (Joueur joueur : vJoueurs) {
+                    for (int i = 0; i < territoiresNonAssignes.size(); i++){
+                        Territoire terr = territoiresNonAssignes.get(i);
+                        if (joueur.getiID() == terr.getOwner().getiID()) {
+                            joueur.addTerritoire(terr);
+                            territoiresNonAssignes.removeElement(terr);
+                        }
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bfIn != null) {
+                    bfIn.close();
+                    System.out.println("Chargement réussi");
+                }
+            } catch (Exception ignored){
+            }
+        }
+    }
+
     /**
      * Instanciation d'une Partie
      * Boucle sur les tours de jeu jusqu'à la fin de Partie
      *
      * @param args
      * @see Partie#tourDeJeu()
+     * @see Partie#init()
+     * @see Partie#saveCSV()
+     * @see Partie#loadCSV()
      */
     public static void main(String[] args) {
         Partie partie = new Partie();
         try {
-            partie.init();
-            //partie.begin(); // Utilisation des Threads
+            System.out.println("Voulez-vous charger une partie ou en commencer une nouvelle ? O/N");
+            Scanner scanner = new Scanner(System.in);
+            if (scanner.next().equals("O")){
+                partie.loadCSV();
+            } else {
+                partie.init();
+            }
 
             /* affichage de la Carte */
             partie.carte.displayCarte();
-
-            //TODO Persister la Partie ici!
+            partie.saveCSV();
 
             partie.bPartieEnCours = true;
             while (partie.bPartieEnCours) {
@@ -350,7 +514,7 @@ public class Partie {
 
                 /* Affichage de la carte une fois les renforts pris en compte */
                 partie.carte.displayCarte();
-                //TODO Persister la Partie ici!
+                partie.saveCSV();
 
             }
 
